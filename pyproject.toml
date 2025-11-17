@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
     "pufferlib>=3.0.0",
+    "wandb>=0.23.0",
 ]
 
 [dependency-groups]

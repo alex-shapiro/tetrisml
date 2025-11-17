@@ -9,8 +9,11 @@ wheels/
 # Virtual environments
 .venv
 
-# Pufferlib
-resources
+# PufferLib
+resources/
+
+# Weights and Biases
+wandb/
 
 # Mac
 .DS_Store
