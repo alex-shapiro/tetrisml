@@ -5,9 +5,12 @@ from pufferlib import pufferl
 env_name = "puffer_tetris"
 args = pufferl.load_config(env_name)
 
-# Limit workers to available CPU cores
+# Limit workers and envs to available CPU cores
 cpu_count = os.cpu_count() or 8
 args["sweep"]["vec"]["num_envs"]["max"] = cpu_count
+args["train"]["vec"]["num_envs"] = cpu_count
+args["train"]["vec"]["num_workers"] = cpu_count
+args["train"]["vec"]["batch_size"] = cpu_count
 
 # For quick testing: reduce max_runs (default is 200) and training time
 # args["max_runs"] = 2
