@@ -1,4 +1,6 @@
+import json
 import os
+from pathlib import Path
 
 from pufferlib import pufferl
 
@@ -26,14 +28,27 @@ args["wandb"] = {
     "group": "sweep-and-train",
 }
 
-# Run hyperparameter sweep using Protein algorithm with defaults
-print(f"Starting sweep with {args['max_runs']} runs using Protein algorithm")
-print(f"Optimizing metric: {args['sweep']['metric']}")
-pufferl.sweep(args, env_name)
+# Check if sweep results already exist
+sweep_config_path = Path("sweep_best_config.json")
+if sweep_config_path.exists():
+    print(f"Loading existing sweep results from {sweep_config_path}")
+    with open(sweep_config_path, "r") as f:
+        saved_config = json.load(f)
+        # Update args with saved hyperparameters
+        args.update(saved_config)
+else:
+    # Run hyperparameter sweep using Protein algorithm with defaults
+    print(f"Starting sweep with {args['max_runs']} runs using Protein algorithm")
+    print(f"Optimizing metric: {args['sweep']['metric']}")
+    pufferl.sweep(args, env_name)
 
-# After sweep completes, train with the best hyperparameters found
-# The sweep automatically updates args with the best config
-print("\nSweep complete. Starting full training with best hyperparameters...")
+    # Save the best hyperparameters found by the sweep
+    print(f"\nSweep complete. Saving best config to {sweep_config_path}")
+    with open(sweep_config_path, "w") as f:
+        json.dump(args, f, indent=2, default=str)
+
+# Train with the best hyperparameters found
+print("\nStarting full training with best hyperparameters...")
 vecenv = pufferl.load_env(env_name, args)
 policy = pufferl.load_policy(args, vecenv)
 train_config = dict(**args["train"], env=env_name)
