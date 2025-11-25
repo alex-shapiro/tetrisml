@@ -2,20 +2,23 @@ import json
 import os
 from pathlib import Path
 
+import psutil
 from pufferlib import pufferl
 
 env_name = "puffer_tetris"
 args = pufferl.load_config(env_name)
 
 # Limit workers and envs to available CPU cores
-cpu_count = os.cpu_count() or 8
+cpu_count = psutil.cpu_count(logical=False)
+assert cpu_count is not None
+print(f"CPU count: {cpu_count}")
 args["sweep"]["vec"]["num_envs"]["max"] = cpu_count
-args["train"]["vec"]["num_envs"] = cpu_count
-args["train"]["vec"]["num_workers"] = cpu_count
-args["train"]["vec"]["batch_size"] = cpu_count
+args["vec"]["num_envs"] = cpu_count
+args["vec"]["num_workers"] = cpu_count
+args["vec"]["batch_size"] = cpu_count
 
 # For quick testing: reduce max_runs (default is 200) and training time
-# args["max_runs"] = 2
+args["max_runs"] = 50
 # args["sweep"]["train"]["total_timesteps"]["min"] = 1_000_000  # 1M steps
 # args["sweep"]["train"]["total_timesteps"]["max"] = 2_000_000  # 2M steps
 # args["sweep"]["train"]["total_timesteps"]["mean"] = 1_500_000  # 1.5M steps
